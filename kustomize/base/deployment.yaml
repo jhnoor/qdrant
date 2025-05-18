@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qdrant
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: qdrant
+  template:
+    metadata:
+      labels:
+        app: qdrant
+    spec:
+      containers:
+        - name: qdrant
+          image: qdrant/qdrant:v1.14.0
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: '500m'
+              memory: '2Gi'
+            limits:
+              cpu: '3000m'
+              memory: '12Gi'
+          ports:
+            - containerPort: 6333 
+              name: qdrant
+          env:
+            - name: QDRANT__STORAGE__STORAGE_PATH 
+              value: /qdrant/storage
+          volumeMounts:
+            - name: vector-db
+              mountPath: /qdrant/storage 
+      volumes:
+        - name: vector-db
+          persistentVolumeClaim:
+            claimName: qdrant-pvc
